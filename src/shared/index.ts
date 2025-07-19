@@ -1,3 +1,5 @@
+
+// TODO: add runtime validation for DateString and TimeString to check for valid formats
 // ISO8601 ie 2021-02-28
 export type DateString = string
 
