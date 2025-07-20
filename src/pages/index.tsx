@@ -27,6 +27,7 @@ import {
   Typography,
   CardContent,
   TableContainer,
+  CircularProgress
 } from '@mui/material'
 
 import { styled } from '@mui/material/styles'
@@ -62,20 +63,42 @@ const EnergyUsageDashboard: React.FC = () => {
     undefined
   )
 
+  // State for loading spinner
+  const [isLoading, setIsLoading] = useState(true)
+  // State for last X days to view, or view all says
+  const [daysToView, setDaysToView] = useState<number | 'all'>('all')
+
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
+  }
+  const handleDaysToViewChange = (event: React.ChangeEvent, newDaysToView: number | 'all') => {
+    setDaysToView(newDaysToView)
   }
 
   useEffect(() => {
     ;(async () => {
-      const resp = await fetch('/api/usage')
-      const data: UsageSummary = await resp.json()
-      setServerResp(data)
+      setIsLoading(true) // Start loading
+      try {
+        const resp = await fetch('/api/usage')
+        const data: UsageSummary = await resp.json()
+        setServerResp(data)
+      } catch (error) {
+        console.error('Error fetching usage data:', error)
+      } finally {
+        setIsLoading(false) // End loading
+      }
+
     })()
   }, [])
 
+  const displayedDays = serverResp?.days
+  ? (daysToView === 'all'
+      ? serverResp.days
+      : serverResp.days.slice(-daysToView)) // Get the last 'daysToView' days
+  : []
+
   // Transform data for chart
-  const chartData = serverResp?.days.map((day) => ({
+  const chartData = displayedDays?.map((day) => ({
     kWh: day.totalKwhForDay,
     date: formatDate(day.date),
     peak: day.usagePeak?.kw || 0,
@@ -90,7 +113,16 @@ const EnergyUsageDashboard: React.FC = () => {
         Energy Usage Dashboard
       </Typography>
 
-      {serverResp && (
+      {isLoading ? (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center'
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      ) : serverResp && (
         <>
           <SummaryCard>
             <CardContent>
@@ -192,7 +224,7 @@ const EnergyUsageDashboard: React.FC = () => {
                       </TableRow>
                     </TableHead>
                     <TableBody>
-                      {serverResp.days.map((day) => (
+                      {displayedDays.map((day) => (
                         <TableRow key={day.date} hover>
                           <TableCell>{formatDate(day.date)}</TableCell>
                           <TableCell align="right">
@@ -225,6 +257,7 @@ const EnergyUsageDashboard: React.FC = () => {
           )}
         </>
       )}
+
     </Box>
   )
 }
