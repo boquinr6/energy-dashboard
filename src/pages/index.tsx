@@ -127,7 +127,7 @@ const EnergyUsageDashboard: React.FC = () => {
         <>
           <SummaryCard>
               <CardContent>
-                <Alert severity="warning">Changing the date range does not affect the summary stats</Alert>
+                <Alert severity="warning">Changing the Vier Period does not affect the summary stats</Alert>
 
                 <Grid2 container spacing={2}>
                 <Grid2 size={{ xs: 12, md: 4 }}>
