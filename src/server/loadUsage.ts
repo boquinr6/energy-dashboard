@@ -1,30 +1,41 @@
 import { promisify } from 'util'
 import { readFile } from 'fs'
-import { UsageSummary } from '../../src/shared'
-import { parse } from 'csv-parse';
+import { UsageSummary, DailyUsage } from '../../src/shared'
+import { parse, Options as CsvParseOptions } from 'csv-parse';
+
+// Define the type for the callback-style parse function
+type ParseCallback = (
+  input: string | Buffer, // this will be the file path's data
+  options: CsvParseOptions, // this are csv-parse options like 'columns' or 'skip_empty_lines'
+  callback: (err: Error | null, records: Record<string, string>[]) => void
+) => void;
+
 
 const readFilePromise = promisify(readFile)
+// in order to avoid race condition, we must be able to await csv parsing
+const parsePromise = promisify(parse as ParseCallback);
 
-export async function loadUsage(): Promise<UsageSummary | undefined> {
+const REQUIRED_DATE_HEADER = 'date';
+
+export async function loadUsage(filePath: string): Promise<UsageSummary> {
   const data = await readFilePromise(
-    './src/server/data/example-04-vic-ausnetservices-email-17122014-MyPowerPlanner.csv'
+    filePath
   )
+  const data_as_string: string = data.toString('utf8')
 
-  console.log('loaded data', data.toString())
+  // console.log('loaded data', data.toString())
 
-  // TODO: Implement CSV parsing logic here using library
-  parse(data, {
+  const records: Record<string, string>[] = await parsePromise(data_as_string, {
     columns: true,
     skip_empty_lines: true,
-  }, (err, records: Record<string, string>[]) => {
-    if (err) {
-      console.error('Error parsing CSV:', err)
-      return
-    }
+  });
+
+
+
+
     // TODO: normalize header names
 
-    const dates = records.map(record => record.DATE);
-    console.log('Dates:', dates);
+
 
     // Validations:
     // TODO: validate date format
@@ -33,6 +44,9 @@ export async function loadUsage(): Promise<UsageSummary | undefined> {
 
     // TODO: validate kWh values
 
+  // records.map(record =>
+  //     const totalDailyKwh = record[]
+  //   )
     // Calculations:
     // TODO: Combine half hour columns to derive total kWh for each day
 
@@ -51,7 +65,15 @@ export async function loadUsage(): Promise<UsageSummary | undefined> {
 
 
 
-  })
+  const usageSummary: UsageSummary = {
+    totalKwh: 0, // TODO: Placeholder
+    averageDailyKwh: 0, // TODO: Placeholder
+    startDate: '', // TODO: Placeholder
+    endDate: '', // TODO: Placeholder
+    days: [], // TODO: Placeholder
+  }
+
+  return usageSummary
 
 
   throw new Error('Not Implemented Yet')

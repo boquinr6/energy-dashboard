@@ -12,9 +12,11 @@ export default async function handler(
   // commenting out the `sampleUsage` function. You may leave the
   // `simulateSlowNetwork` if you wish to do so.`
   await simulateSlowNetwork()
-  const usageData = loadUsage()
+  const usageData = loadUsage(
+    './src/server/data/example-04-vic-ausnetservices-email-17122014-MyPowerPlanner.csv'
+  );
   // const usageData = sampleUsage()
-  res.status(200).json(usageData)
+  res.status(200).json(await usageData)
 }
 
 function simulateSlowNetwork(delayMs = 1500): Promise<void> {
