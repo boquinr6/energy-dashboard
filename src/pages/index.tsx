@@ -31,6 +31,7 @@ import {
 } from '@mui/material'
 
 import { styled } from '@mui/material/styles'
+import Alert from '@mui/material/Alert';
 
 const StyledCard = styled(Card)(({ theme }) => ({
   borderRadius: 12,
@@ -71,8 +72,8 @@ const EnergyUsageDashboard: React.FC = () => {
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue)
   }
-  const handleDaysToViewChange = (event: React.ChangeEvent, newDaysToView: number | 'all') => {
-    setDaysToView(newDaysToView)
+  const handleDaysToViewChange = (newDaysToView: string) => {
+    setDaysToView(newDaysToView === 'all' ? 'all' : Number(newDaysToView))
   }
 
   useEffect(() => {
@@ -125,8 +126,10 @@ const EnergyUsageDashboard: React.FC = () => {
       ) : serverResp && (
         <>
           <SummaryCard>
-            <CardContent>
-              <Grid2 container spacing={2}>
+              <CardContent>
+                <Alert severity="warning">Changing the date range does not affect the summary stats</Alert>
+
+                <Grid2 container spacing={2}>
                 <Grid2 size={{ xs: 12, md: 4 }}>
                   <Typography variant="subtitle1">Total Usage</Typography>
                   <Typography variant="h5" fontWeight="bold">
@@ -142,13 +145,27 @@ const EnergyUsageDashboard: React.FC = () => {
                 <Grid2 size={{ xs: 12, md: 4 }}>
                   <Typography variant="subtitle1">Period</Typography>
                   <Typography variant="h5" fontWeight="bold">
-                    {formatDate(serverResp.startDate)} -{' '}
+                    {/* Decision: don't update this when daysToView changes because summary data should show things from the entire period of UsageSummary */}
+                      {formatDate(serverResp.startDate)} -{' '}
                     {formatDate(serverResp.endDate)}
                   </Typography>
                 </Grid2>
               </Grid2>
             </CardContent>
           </SummaryCard>
+
+          <Typography variant='h5'>
+            View Period:
+          </Typography>
+          <select
+            value={daysToView}
+            onChange={e => handleDaysToViewChange(e.target.value)}
+          >
+            <option value={'all'}>All Days</option>
+            <option value={'7'}>Last 7 Days</option>
+            <option value={'30'}>Last 30 Days</option>
+            <option value={'60'}>Last 60 Days</option>
+          </select>
 
           <Tabs
             value={tabValue}
