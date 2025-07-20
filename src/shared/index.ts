@@ -16,7 +16,7 @@ export interface UsageSummary {
 
 export interface DailyUsage {
   date: DateString
-  totalKwh: number
+  totalKwhForDay: number
   averageHourlyKwh: number
   usagePeak?: UsagePeak
 }

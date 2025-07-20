@@ -23,19 +23,19 @@ export function sampleUsage(): UsageSummary {
       kw: Math.random() * 47,
     }
 
-    const totalKwh = Math.random() * 23
+    const totalKwhForDay = Math.random() * 23
 
     days.push({
       date,
-      totalKwh,
-      averageHourlyKwh: totalKwh / 24,
+      totalKwhForDay,
+      averageHourlyKwh: totalKwhForDay / 24,
       usagePeak,
     })
 
     day += 1
   }
 
-  const totalKwh = days.reduce((memo, e) => memo + e.totalKwh, 0)
+  const totalKwh = days.reduce((memo, e) => memo + e.totalKwhForDay, 0)
 
   const averageDailyKwh = totalKwh / lastDay
 

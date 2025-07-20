@@ -30,14 +30,14 @@ describe('loadUsage', () => {
             // day 1
             const day1: DailyUsage = {
                 date: '2013-12-01',
-                totalKwh: 9.59,
+                totalKwhForDay: 9.59,
                 averageHourlyKwh: 0.4, // TODO: figure out rounding scheme
                 usagePeak: null
             }
             // day 2
             const day2: DailyUsage = {
                 date: '2013-12-02',
-                totalKwh: 13.008,
+                totalKwhForDay: 13.008,
                 averageHourlyKwh: 0.542, // TODO: figure out rounding scheme
                 usagePeak: null
             }

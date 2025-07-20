@@ -76,7 +76,7 @@ const EnergyUsageDashboard: React.FC = () => {
 
   // Transform data for chart
   const chartData = serverResp?.days.map((day) => ({
-    kWh: day.totalKwh,
+    kWh: day.totalKwhForDay,
     date: formatDate(day.date),
     peak: day.usagePeak?.kw || 0,
   }))
@@ -196,7 +196,7 @@ const EnergyUsageDashboard: React.FC = () => {
                         <TableRow key={day.date} hover>
                           <TableCell>{formatDate(day.date)}</TableCell>
                           <TableCell align="right">
-                            {day.totalKwh.toFixed(1)}
+                            {day.totalKwhForDay.toFixed(1)}
                           </TableCell>
                           <TableCell align="right">
                             {day.averageHourlyKwh.toFixed(2)}
