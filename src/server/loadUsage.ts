@@ -10,7 +10,6 @@ type ParseCallback = (
   callback: (err: Error | null, records: Record<string, string>[]) => void
 ) => void;
 
-
 const readFilePromise = promisify(readFile)
 const parsePromise = promisify(parse as ParseCallback);
 
@@ -45,23 +44,25 @@ export async function loadUsage(filePath: string): Promise<UsageSummary> {
     skip_empty_lines: true,
   });
 
-  // TODO: normalize header names
+  // if no records, return empty UsageSummary
+  if (records.length === 0) {
+    return {
+      totalKwh: 0,
+      averageDailyKwh: 0,
+      startDate: '',
+      endDate: '',
+      days: []
+    };
+  }
 
   // check if all required headers present in the actual CSV
   const missingRequiredHeaders = EXPECTED_ALL_HEADERS.filter(expectedHeader => {
       return !Object.keys(records[0]).includes(expectedHeader)
-    });
+  });
 
   if (missingRequiredHeaders.length > 0) {
-      throw new Error(`Validation Error: Missing headers`);
+      throw new Error(`Validation Error: Missing headers: ${missingRequiredHeaders.join(', ')}`);
   }
-
-
-  // Validations:
-
-  // TODO: validate half hour columns
-
-  // TODO: validate kWh values
 
   // calculate total and average kWh for each day
   const dailyRecords: DailyUsage[] = records.map(record => {
@@ -72,6 +73,10 @@ export async function loadUsage(filePath: string): Promise<UsageSummary> {
     // Combine half hour columns to derive total and avg hourly kWh for each day
     const totalKwhForDay: number = HALF_HOUR_HEADERS.reduce((total, header) => {
       const value = parseFloat(record[header]);
+      // if value is NaN, throw an error
+      if (isNaN(value)) {
+        throw new Error(`Validation Error: Invalid kwh value for header ${header}`);
+      }
       return total + (isNaN(value) ? 0 : value);
     }, 0);
 
