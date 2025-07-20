@@ -45,7 +45,7 @@ describe('loadUsage', () => {
     })
 
     afterAll(async () => {
-        await cleanupTestCsvs;
+        await cleanupTestCsvs();
     });
 
     describe('when an invalid csv', () => {
